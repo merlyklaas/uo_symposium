@@ -1,0 +1,173 @@
+---
+title: "poster"
+author: "Merly Klaas"
+date: "5/5/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r setup, include=FALSE}
+pacman::p_load("tidyverse","rio","here","janitor", "usmap","maps", "colorspace","geofacet","leaidr", "viridis","ggthemes", "arrow", "forcats", "ggrepel","edld652", "mapproj","albersusa" , "cowplot", "biscale", "plotly", "ggeasy", "flexdashboard", "Hmisc", "psych", "dplyr", "stringr", "readr", "tidyr", "corrplot", "scales", "RColorBrewer", "ggmap", "devtools", "piggyback", "maptools", "gitcreds", "knitr", "kableExtra", "xtable", "PerformanceAnalytics", "corrgram", "GGally", "gghighlight", "ggtext", "viridis")
+```
+
+```{r loading-data}
+r2a <- import(here("Data","r2a.csv"))
+#math_sc <- import(here("Data", "math_sc.csv"))
+state_r2b <- import(here("Data", "state_r2b.csv"))
+dist_r2b <- import(here("Data", "dist_r2b.csv"))
+
+
+state <- import(here("data", "state.csv"))
+```
+
+
+
+```{r include=FALSE}
+#### Diverging Plots Math
+math <- state %>%
+  drop_na(allmath, st)
+
+math$math_z <- round(math$allmath - mean(math$allmath),2)
+math$math_type <-ifelse(math$math_z < 0, "below", "above")
+
+
+```
+
+
+```{r}
+#Diverging plot with geom_bar
+ppmath <- math %>%
+  mutate(st = fct_reorder(st, math_z)) %>%
+  ggplot(aes(math_z, st)) +
+  geom_bar(stat = "identity", aes(fill =math_type), width=0.5)+
+  scale_fill_manual(name = "Average Math",
+                    values = c("above" = "#015193", "below"="#e3007d")) +
+  scale_x_continuous(breaks = c(-26.76 , 0 , 23.24),
+                       labels = c(30, 56.76, 80),
+                     expand = c(0,0)) +
+  labs(title= "2018-2019 Percent of Proficient in Math Tes for High School Students",
+       subtitle = "Profieciency varied widely between 28% - 90% across the states",
+       captions = "States missing from the graph did not report their data \nSource: U.S. Department of Education, National Center for Education Statistics, Common Core of Data (CCD)",
+        x = "",
+       y = "") +
+    theme_minimal() +
+   theme(legend.position="none", 
+         panel.grid = element_blank(),
+         plot.title.position = "plot",
+         plot.title = element_text(face="bold"),
+        plot.subtitle = element_text(face="italic"),
+        plot.caption = element_text(color ="gray30",hjust = 1))
+ppmath
+```
+
+
+```{r}
+rla <- state %>%
+  drop_na(allrla, st)
+
+rla$rla_z <- round(rla$allrla - mean(rla$allrla),2)
+rla$rla_type <-ifelse(rla$rla_z < 0, "below", "above")
+
+
+prla <- rla %>%
+  mutate(st= fct_reorder(st,rla_z)) %>%
+  ggplot(aes(rla_z, st)) +
+  geom_bar(stat = "identity", aes(fill =rla_type), width=0.5)+
+  scale_fill_manual(name = "Average Math",
+                    values = c("above" = "#015193", "below"="#e3007d")) +
+  scale_x_continuous(breaks = c(-30,0,20),
+                       labels = c(37.97, 67.97, 87.97),
+                     expand = c(0,0)) +
+  labs(title= "2018-2019 Percent of Proficient in Reading Test for High School Students",
+       subtitle = "Profieciency varied widely between 29% - 94% across the states",
+       captions = "States missing from the graph did not report their data \nSource: U.S. Department of Education, National Center for Education Statistics, Common Core of Data (CCD)",
+        x = "",
+       y = "") +
+    theme_minimal() +
+   theme(legend.position="none", 
+         panel.grid = element_blank(),
+         plot.title.position = "plot",
+         plot.title = element_text(face="bold"),
+        plot.subtitle = element_text(face="italic"),
+        plot.caption = element_text(color ="gray30",hjust = 1))
+prla
+```
+
+```{r}
+textbook_us <- left_join( us, state_r2b, by = c("name" = "stnam")) %>%
+  mutate(Textbook = round(stperstudbook,2)) %>%
+mutate(bins = cut(Textbook, breaks = c(0,20,40,60,80,100, 120))) %>% 
+        ggplot(aes(geometry = geometry, fill = bins)) +
+    	geom_sf(color = "white", size = 0.2)+
+ scale_fill_manual(values = c("#F2E289", "#E8FACF","#BCDFB0","#8EC495", "#00777E","#005C88"),
+                             name = "($)") +
+  theme_minimal() +
+  labs(fill = "Textbook Spending \nper Student",
+       title = "State Textbook Spending Per Student",
+       subtitle = "Textbook Spending per student varied between $14 - $107 across the states",
+       caption = "\nSource: U.S. Department of Education, National Center for Education Statistics, Common Core of Data (CCD)") +
+    theme(
+         panel.grid = element_blank(),
+         plot.title.position = "plot",
+         plot.title = element_text(face="bold"),
+        plot.subtitle = element_text(face="italic"),
+        plot.caption = element_text(color ="gray30",hjust = 1),
+        axis.text.x = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.y = element_blank(),
+         legend.key.height = unit(0.1,"cm"),
+        rect = element_blank(),
+        panel.grid.major = element_blank())
+
+
+textbook_us
+```
+```{r}
+ols <- state_r2b%>%
+  select(stnam, stperstudbook, allmath) %>%
+  drop_na() %>%
+  filter(!stnam == "District Of Columbia") %>%
+  ggplot(aes(stperstudbook, allmath))+
+  geom_point( color = "gray", size = 4, alpha = 0.4) +
+  geom_smooth(fill= "gray90",method = "lm", color = "gray")+
+  geom_point(data=filter(state_r2b,
+                         stnam == "Virginia" |
+                           stnam== "Nebraska"|
+                           stnam== "New York"),
+             color = "#015193",
+             alpha = 0.8,
+             size =4)+
+geom_point(data=filter(state_r2b,
+                       stnam == "Tennessee"|
+                         stnam== "Rhode Island"|
+                         stnam== "Minnesota"),
+           color = "#E3007D",
+           alpha = 0.8,
+           size =4) +
+  geom_text_repel(data= subset(state_r2b,
+                               stnam == "Virginia" |
+                                 stnam== "Nebraska"|
+                                 stnam =="New York" |
+                                 stnam == "Tennessee" |
+                                 stnam== "Rhode Island"|
+                                 stnam== "Minnesota"),
+                               aes(label =stnam)) +
+  theme_minimal()+
+  xlim (14,108) +
+    labs(title= "Textbook Spending & Math Achievement",
+      x = "Textbook spending per student",
+       y = "% of Students at & above Proficiency Level",
+      size = "Spending \nper Student",
+      caption = "3 Top/Bottom States with Percent of Student at and above Math Proficiency \nare labeled and colored blue/red, respectively")+
+    geom_richtext(x=90,y=50, label="<i>r</i> = 0.33 \n<i>p</i> = 0.045", size = 2, color = "gray30")+
+  theme(legend.position = "bottom",
+        panel.grid.major = element_blank(),
+         panel.grid.minor = element_blank())
+ols
+```
+
+`
