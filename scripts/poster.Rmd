@@ -20,15 +20,15 @@ pacman::p_load("tidyverse","rio","here","janitor", "usmap", "ggthemes", "ggrepel
 
 plot_theme <- function() {
   theme(
-  text = element_text(family = 'sans', size = 25),
+  text = element_text(family = 'sans', size = 20),
   plot.title.position = "plot",
-  plot.title = element_text(face="bold", size = 30),
-  plot.subtitle = element_text(size = 25),
-  plot.caption = element_text(size = 20,
+  plot.title = element_text(face="bold", size = 25),
+  plot.subtitle = element_text(size = 20),
+  plot.caption = element_text(size = 16,
                               color ="gray30",
                               hjust = 0),
-  axis.title = element_text(face="bold", size = 20),
-  axis.text = element_text(face="bold", size = 20),
+  axis.title = element_text(face="bold", size = 18),
+  axis.text = element_text(face="bold", size = 18),
  # axis.text.y = element_text(margin=margin(r=1))
   )
 }
@@ -83,7 +83,8 @@ ppmath <- math %>%
    theme_minimal() +
   plot_theme()+
    theme(legend.position="none", 
-         panel.grid = element_blank())
+         panel.grid = element_blank(),
+         axis.text.y = element_text(size = 16))
         #  plot.title.position = "plot",
         #  plot.title = element_text(face="bold"),
         # plot.subtitle = element_text(face="italic"),
@@ -92,7 +93,7 @@ ppmath <- math %>%
 ppmath
 
 #ggpreview(width = 15, height = 12, units = "in")
-ggsave(here("data","math.png"),width = 15, height = 12, units = "in")
+#ggsave(here("data","math.png"),width = 15, height = 12, units = "in")
 ```
 
 
@@ -120,17 +121,18 @@ prla <- rla %>%
     theme_minimal() +
     plot_theme()+
    theme(legend.position="none", 
-         panel.grid = element_blank())
+         panel.grid = element_blank(),
+         axis.text.y = element_text(size = 16))
 prla
 
 
 ppmath + prla +
   plot_annotation(
-    title = "High-chool proficient students in achievement tests"
+    title = "High-school proficient students in achievement tests"
   ) &
   plot_theme()
   
-#ggpreview(width = 22, height = 15, units = "in")
+#ggpreview(width = 15, height = 11, units = "in")
 #ggsave(here::here("plot","achievement_test.png"), width = 22, height = 15, units = "in")
 ```
 
@@ -157,17 +159,19 @@ mutate(bins = cut(Textbook, breaks = c(0,20,40,60,80,100, 120))) %>%
         axis.text.x = element_blank(),
         axis.ticks = element_blank(),
         axis.text.y = element_blank(),
+        legend.position = "top",
+        legend.justification="right",
         legend.key.height = unit(0.1,"cm"),
-        legend.text = element_text(size = 20),
-        legend.title = element_text(size = 20),
+        legend.text = element_text(size = 18),
+        legend.title = element_text(size = 18),
         rect = element_blank(),
         panel.grid.major = element_blank())
 
 
 textbook_us
 
-#ggpreview(width = 12, height = 8, units = "in")
-ggsave(here("plot", "textbook_map.png"), width = 12, height = 8, units = "in")
+#ggpreview(width = 8, height = 8, units = "in")
+#ggsave(here("plot", "textbook_map.png"), width = 12, height = 8, units = "in")
 ```
 
 ```{r}
@@ -177,7 +181,7 @@ ols <- state_r2b%>%
   filter(!stnam == "District Of Columbia") %>%
   ggplot(aes(stperstudbook, allmath))+
   geom_point( color = "gray", size = 4, alpha = 0.4) +
-  geom_smooth(fill= "gray90",method = "lm", se = F, color = "#8EC495")+
+  geom_smooth(fill= "gray90",method = "lm", se = F, color = "#8EC495", size = 2)+
   geom_point(data=filter(state_r2b,
                          stnam == "Virginia" |
                            stnam== "Nebraska"|
@@ -209,7 +213,7 @@ geom_point(data=filter(state_r2b,
       x = "Textbook spending per student ($)",
        y = "% of Students at & above Proficiency Level",
       size = "Spending \nper Student")+
-    geom_richtext(x=90,y=50, label="<i>r</i> = 0.33 \n<i>p</i> = 0.045", size = 2, color = "gray30")+
+    geom_richtext(x=90,y=50, label="<i>r</i> = 0.33 \n<i>p</i> = 0.045", size = 8, color = "gray30")+
   theme(legend.position = "bottom",
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank())+
@@ -217,8 +221,8 @@ geom_point(data=filter(state_r2b,
         # plot.title = element_text(face="bold"),
         # plot.subtitle = element_text(face="italic"),)
 
-#ggpreview(height = 10, width = 12, unit = "in")
-ggsave(here("plot","ols.png"), width = 12, height = 10, unit = "in")
+#ggpreview(height = 8, width = 11, unit = "in")
+#ggsave(here("plot","ols.png"), width = 12, height = 10, unit = "in")
 ```
 
 ## Diversity plots
@@ -229,7 +233,6 @@ sm <- get_data("NCES_CCD_nonfiscal_state_2017_2021_membership") %>%
 
 #Grade only K-12
 #Student count by race_ethnicity in K-12 
-sm %>% filter(st == "DA")
 
 sm <- subset(sm, grepl(("^G|^K"), grade))
 
@@ -273,12 +276,12 @@ smw_change <- sm_wide%>%
   mutate(
     re = case_when(
        race_ethnicity == "Native Hawaiian or Other Pacific Islander" ~ "NHPI",
-       race_ethnicity == "Black or African American" ~ "Black",
+       race_ethnicity == "Black or African American" ~ "B",
        race_ethnicity == "American Indian or Alaska Native" ~ "AIAN",
-       race_ethnicity == "Two or more races" ~ "Multiracial",
-       race_ethnicity == "Hispanic/Latino" ~ "Hispanic/Latino",
-       race_ethnicity == "White" ~ "White",
-       race_ethnicity == "Asian" ~ "Asian"
+       race_ethnicity == "Two or more races" ~ "TMR",
+       race_ethnicity == "Hispanic/Latino" ~ "HI",
+       race_ethnicity == "White" ~ "W",
+       race_ethnicity == "Asian" ~ "S"
     )) %>% 
   select(re, starts_with("change_")) %>% 
     pivot_longer(
@@ -290,7 +293,7 @@ smw_change <- sm_wide%>%
 
 
 p1 <- ggplot(smw_change, aes(x = years, y = raw, group = re))+
-    geom_point(aes(color = re), show.legend = FALSE, size = 3)+
+    geom_point(aes(color = re), show.legend = FALSE, size = 2)+
     geom_line(aes(color = re), show.legend = FALSE)+
     geom_text_repel(data=subset(smw_change,
                        years == 2021),
@@ -301,7 +304,7 @@ p1 <- ggplot(smw_change, aes(x = years, y = raw, group = re))+
                show.legend = FALSE,
                nudge_x = 0.5,
                nudge_y = 10000,
-               size = 7,
+               size = 5,
                min.segment.length = 1
              ) +
     scale_y_continuous(
@@ -313,8 +316,8 @@ p1 <- ggplot(smw_change, aes(x = years, y = raw, group = re))+
     )+
     labs(
         x = "",
-        y = "",
-        subtitle = "Raw Change",)+
+        y = "")+
+      #  subtitle = "Raw Change",)+
     #     caption = "NHPI = Native Native Hawaiian or Other Pacific Islander \nAIAN = American Indian or Alaska Native \nNote: Missing data from Illinois"
     # )+
     scale_color_manual(
@@ -340,7 +343,7 @@ smw_pchange <- sm_wide%>%
        race_ethnicity == "Black or African American" ~ "Black",
        race_ethnicity == "American Indian or Alaska Native" ~ "AIAN",
        race_ethnicity == "Two or more races" ~ "Multiracial",
-       race_ethnicity == "Hispanic/Latino" ~ "Hispanic/Latino",
+       race_ethnicity == "Hispanic/Latino" ~ "HI",
        race_ethnicity == "White" ~ "White",
        race_ethnicity == "Asian" ~ "Asian"
     )) %>% 
@@ -354,7 +357,7 @@ smw_pchange <- sm_wide%>%
 
 
 p2 <- ggplot(smw_pchange, aes(x = years, y = raw, group = re))+
-    geom_point(aes(color = re), show.legend = FALSE, size = 3)+
+    geom_point(aes(color = re), show.legend = FALSE, size = 2)+
     geom_line(aes(color = re), show.legend = FALSE)+
     geom_text_repel(data=subset(smw_pchange,
                        years == 2021),
@@ -364,7 +367,7 @@ p2 <- ggplot(smw_pchange, aes(x = years, y = raw, group = re))+
                ),
                show.legend = FALSE,
                nudge_x = 0.4,
-               size = 7,
+               size = 6,
                min.segment.length = 1
              ) +
     scale_y_continuous(
@@ -377,9 +380,9 @@ p2 <- ggplot(smw_pchange, aes(x = years, y = raw, group = re))+
     labs(
         x = "",
         y = "",
-        subtitle = "% Change") +
-    #     caption = "NHPI = Native Native Hawaiian or Other Pacific Islander \nAIAN = American Indian or Alaska Native \nNote: Missing data from Illinois"
-    # )+
+        title = '%Change in K-12 Student Composition',
+        # caption = "NHPI = Native Native Hawaiian or Other Pacific Islander \nAIAN = American Indian or Alaska Native"
+  )+
     scale_color_manual(
         values = c("#E62790", "#00347B","#249EDC",
                    "#00906E","#6929C4","#20659D",
@@ -390,19 +393,22 @@ p2 <- ggplot(smw_pchange, aes(x = years, y = raw, group = re))+
         panel.grid.minor = element_blank(),
         panel.grid.major.x = element_blank())+
   plot_theme()
+
+p2
+
+#ggpreview(width = 7, height = 6, unit = "in")
 ```
 
 ```{r}
 p1 + p2 +
   plot_annotation(
   title = 'Changes in K-12 Student Composition',
-  subtitle = 'Covid-19 impacted student enrollment student enrollment across all groups\n ',
-  caption = 'NHPI = Native Native Hawaiian or Other Pacific Islander \nAIAN = American Indian or Alaska Native \nNote: Missing data from Illinois'
+ # caption = 'NHPI = Native Native Hawaiian or Other Pacific Islander \nAIAN = American Indian or Alaska Native'
   ) &
   plot_theme()
 
-#ggpreview(width = 20, height = 12, unit = "in")
-#ggsave(here::here("plot","change_v2.png"), width = 20, height = 12, unit = "in")
+#ggpreview(width = 12, height = 6, unit = "in")
+#ggsave(here::here("plot_final","trends_1.png"), width = 10, height = 6, unit = "in", dpi = 300)
 ```
 
 ```{r}
@@ -425,7 +431,9 @@ sm_18 <- sm %>%
 stu_map1 <- sm_18 %>%  
         filter(!st %in% c("BI","AS","GU","PR","VI")) %>% 
         mutate(
-        race_ethnicity = ifelse(race_ethnicity == "Native Hawaiian or Other Pacific Islander", "Native Hawaiian or \nOther Pacific Islander", race_ethnicity)
+        race_ethnicity = ifelse(race_ethnicity == "Native Hawaiian or Other Pacific Islander", "Native Hawaiian or \nOther Pacific Islander", 
+                      ifelse(race_ethnicity == "American Indian or Alaska Native", "American Indian or\nAlaska Native",
+                             race_ethnicity))
         ) %>% 
         mutate(bins = cut(percent_s, 
                           breaks = c(0,2,10,25,50,75, 91),
@@ -438,7 +446,7 @@ stu_map1 <- sm_18 %>%
                              name = "Percent of Students") +
         labs(
             title = "Student Diversity in K-12 Public Schools (2017-18)",
-            subtitle = "52% of all students identify as non-White",
+            subtitle = "Of all students, 52% were students of color",
            # caption = " \n \nSource: U.S. Department of Education, National Center for Education Statistics, Common Core of Data (CCD)"
         )+
         guides(fill = guide_legend(nrow = 1))+
@@ -448,20 +456,20 @@ stu_map1 <- sm_18 %>%
         strip.background = element_blank(),
         legend.position = "top",
         legend.justification="right",
-        legend.title = element_text(size = 18),
-        legend.text  = element_text(size = 18),
+        legend.title = element_text(size = 16),
+        legend.text  = element_text(size = 16),
         legend.key.size = unit(1, "lines"),
-        text = element_text(family = 'sans', size = 24),
+        text = element_text(family = 'sans', size = 20),
         plot.title.position = "plot",
-        plot.title = element_text(face="bold", size = 30),
-        plot.subtitle = element_text(size = 24),
+        plot.title = element_text(face="bold", size = 25),
+        plot.subtitle = element_text(size = 20),
         plot.caption = element_text(size = 20,
                                     color ="gray30",
                                     hjust = 0))
     
 stu_map1
 
-#ggpreview(width = 16, height = 10, unit = "in")
+#ggpreview(width = 11, height = 8, unit = "in")
 #ggsave(here::here("plot","map.png"), width = 16, height = 10, unit = "in")
 ```
 
@@ -504,7 +512,10 @@ stu_map2 <- sm_18 %>%
     )
 
 stu_map2
+
 ```
+
+
 ```{r}
 #Note to self: Missing total student data for AS(2017), DA(2017), and IL (2021)
 
@@ -588,12 +599,12 @@ st_binary <- stu_teacher %>%
 dotplot <- ggplot(st_binary, aes(x = percent_total, y = forcats::fct_reorder(st, percent_total))) +
     geom_line(aes(group = st), 
             linetype = "dotted", color = "gray40")+
-    geom_point(aes(color = profession), size = 3)+
+    geom_point(aes(color = profession), size = 2)+
     geom_text(aes(x=percent_total,
                   y=st,
                   label = round(percent_total,0),
                   color = profession),
-               nudge_x = 2, size = 7, family = "sans",
+               nudge_x = 2, size = 5, family = "sans",
               show.legend = FALSE)+
     scale_color_manual(limits = c("Teacher", "Student"),
                       values = c("#00347B","#E62790"), 
@@ -604,14 +615,15 @@ dotplot <- ggplot(st_binary, aes(x = percent_total, y = forcats::fct_reorder(st,
         x = "Percent",
         y  = "",
         title = "Student Teacher Diveristy Gap (SY 2017-18)",
-        subtitle = "52% of all K-12 students identify as non-White but only \n21% of all teachers identify as non-White",
-        caption = " \n \nNo teacher data for Maryland and Washington DC."
+        subtitle = "Of all public school teachers, only 21% identify as teachers of color",
+      #  caption = " \n \nNo teacher data for Maryland and Washington DC."
         )+
     plot_theme()+
     theme(
         panel.grid.minor = element_blank(),
         panel.grid.major = element_blank(),
         axis.text.x = element_blank(),
+        axis.text.y = element_text(size = 16),
         axis.line.x = element_line(colour = "gray90"),
         legend.key = element_rect(fill = "white", colour = NA),
         legend.text  = element_text(size = 18),
@@ -630,6 +642,8 @@ dotplot <- ggplot(st_binary, aes(x = percent_total, y = forcats::fct_reorder(st,
     # )
 
 dotplot
+
+#ggpreview(height = 11, width = 9, unit = "in")
 ```
 
 ```{r}
