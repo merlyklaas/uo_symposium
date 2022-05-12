@@ -40,16 +40,16 @@ math$math_type <-ifelse(math$math_z < 0, "below", "above")
 #Diverging plot with geom_bar
 ppmath <- math %>%
   mutate(st = fct_reorder(st, math_z)) %>%
+  filter(st != "IL") %>% 
   ggplot(aes(math_z, st)) +
   geom_bar(stat = "identity", aes(fill =math_type), width=0.5)+
   scale_fill_manual(name = "Average Math",
                     values = c("above" = "#015193", "below"="#e3007d")) +
-  scale_x_continuous(breaks = c(-26.76 , 0 , 23.24),
-                       labels = c(30, 56.76, 80),
+  scale_x_continuous(breaks = c(-21.76 , 0 , 23.24),
+                       labels = c("35%", "56.76%", "80%"),
                      expand = c(0,0)) +
-  labs(title= "2018-2019 Percent of Proficient in Math Tes for High School Students",
-       subtitle = "Profieciency varied widely between 28% - 90% across the states",
-       captions = "States missing from the graph did not report their data \nSource: U.S. Department of Education, National Center for Education Statistics, Common Core of Data (CCD)",
+  labs(
+       subtitle = "Student proficient in Math varied between 33% - 90% ",
         x = "",
        y = "") +
     theme_minimal() +
@@ -58,7 +58,7 @@ ppmath <- math %>%
          plot.title.position = "plot",
          plot.title = element_text(face="bold"),
         plot.subtitle = element_text(face="italic"),
-        plot.caption = element_text(color ="gray30",hjust = 1))
+        plot.caption = element_text(color ="gray30",hjust = 0))
 ppmath
 ```
 
@@ -73,16 +73,15 @@ rla$rla_type <-ifelse(rla$rla_z < 0, "below", "above")
 
 prla <- rla %>%
   mutate(st= fct_reorder(st,rla_z)) %>%
+  filter(st != "IL") %>% 
   ggplot(aes(rla_z, st)) +
   geom_bar(stat = "identity", aes(fill =rla_type), width=0.5)+
   scale_fill_manual(name = "Average Math",
                     values = c("above" = "#015193", "below"="#e3007d")) +
-  scale_x_continuous(breaks = c(-30,0,20),
-                       labels = c(37.97, 67.97, 87.97),
+  scale_x_continuous(breaks = c(-22.97,0,20),
+                       labels = c("45%", "67.97%", "87.97%"),
                      expand = c(0,0)) +
-  labs(title= "2018-2019 Percent of Proficient in Reading Test for High School Students",
-       subtitle = "Profieciency varied widely between 29% - 94% across the states",
-       captions = "States missing from the graph did not report their data \nSource: U.S. Department of Education, National Center for Education Statistics, Common Core of Data (CCD)",
+  labs( subtitle = "Student proficient in Reading varied between 42% - 94%",
         x = "",
        y = "") +
     theme_minimal() +
@@ -91,7 +90,7 @@ prla <- rla %>%
          plot.title.position = "plot",
          plot.title = element_text(face="bold"),
         plot.subtitle = element_text(face="italic"),
-        plot.caption = element_text(color ="gray30",hjust = 1))
+        plot.caption = element_text(color ="gray30",hjust = 0))
 prla
 ```
 
@@ -106,8 +105,7 @@ mutate(bins = cut(Textbook, breaks = c(0,20,40,60,80,100, 120))) %>%
   theme_minimal() +
   labs(fill = "Textbook Spending \nper Student",
        title = "State Textbook Spending Per Student",
-       subtitle = "Textbook Spending per student varied between $14 - $107 across the states",
-       caption = "Source: U.S. Department of Education, National Center for Education Statistics, Common Core of Data (CCD)") +
+       subtitle = "Textbook Spending per student varied between $14 - $107") +
     theme(
          panel.grid = element_blank(),
          plot.title.position = "plot",
@@ -146,7 +144,10 @@ geom_point(data=filter(state_r2b,
                          stnam== "Minnesota"),
            color = "#E3007D",
            alpha = 0.8,
-           size =4) +
+           size =6) +
+   scale_x_continuous(breaks = c(30,60,90),
+                       labels = c("$30", "$60", "$90"),
+                     expand = c(0,0)) + 
   geom_text_repel(data= subset(state_r2b,
                                stnam == "Virginia" |
                                  stnam== "Nebraska"|
@@ -154,12 +155,13 @@ geom_point(data=filter(state_r2b,
                                  stnam == "Tennessee" |
                                  stnam== "Rhode Island"|
                                  stnam== "Minnesota"),
-                               aes(label =stnam)) +
+                               aes(label =stnam),
+                  size = ) +
   theme_minimal()+
   xlim (14,108) +
-    labs(title= "The relationship between Textbook Spending & Math Achievement in High School",
-         subtitle = "States that spent more on textbook tend to have higher percentage of proficient student in Math",
-      x = "Textbook spending per student",
+    labs(title= "Textbook Spending & Math Achievement in High School (2017-18)",
+         subtitle = "Higher textbook spending associated with higher student proficient in Math",
+      x = "Textbook spending per student ($)",
        y = "% of Students at & above Proficiency Level",
       size = "Spending \nper Student",
       caption = "3 Top/Bottom States with Percent of Student at and above Math Proficiency \nare labeled and colored blue/red, respectively")+
