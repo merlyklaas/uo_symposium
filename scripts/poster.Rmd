@@ -23,12 +23,12 @@ plot_theme <- function() {
   text = element_text(family = 'sans', size = 25),
   plot.title.position = "plot",
   plot.title = element_text(face="bold", size = 30),
-  plot.subtitle = element_text(size = 28),
-  plot.caption = element_text(size = 22,
+  plot.subtitle = element_text(size = 25),
+  plot.caption = element_text(size = 20,
                               color ="gray30",
                               hjust = 0),
-  axis.title = element_text(face="bold", size = 22),
-  axis.text = element_text(face="bold", size = 22),
+  axis.title = element_text(face="bold", size = 20),
+  axis.text = element_text(face="bold", size = 20),
  # axis.text.y = element_text(margin=margin(r=1))
   )
 }
@@ -75,9 +75,10 @@ ppmath <- math %>%
   scale_x_continuous(breaks = c(-26.76 , 0 , 23.24),
                        labels = c(30, 56.76, 80),
                      expand = c(0,0)) +
-  labs(title= "High school students proficienct in Math Test (2018-2019)",
-       subtitle = "Percentage profieciency varied widely, between 28% to 90%.",
-       captions = "Note: States missing from the graph did not report their data",
+  labs(
+    #title= "High school students proficienct in Math Test (2018-2019)",
+       subtitle = "Student proficient in Reading varied between 28% to 90%.",
+     #  captions = "Note: States missing from the graph did not report their data",
         x = "",
        y = "") +
    theme_minimal() +
@@ -89,6 +90,9 @@ ppmath <- math %>%
         # plot.subtitle = element_text(face="italic"),
         # plot.caption = element_text(color ="gray30",hjust = 1))
 ppmath
+
+#ggpreview(width = 15, height = 12, units = "in")
+ggsave(here("data","math.png"),width = 15, height = 12, units = "in")
 ```
 
 
@@ -109,9 +113,11 @@ prla <- rla %>%
   scale_x_continuous(breaks = c(-30,0,20),
                        labels = c(37.97, 67.97, 87.97),
                      expand = c(0,0)) +
-  labs(title= "High school students proficienct in Reading Test (2018-2019)",
-       subtitle = "Percentage proficient varied widely, between 29% to 94%",
-       captions = "Note: States missing from the graph did not report their data",
+  labs(
+    
+    #title= "High school students proficienct in Reading Test (2018-2019)",
+    subtitle = "Student proficient in Math varied between 29% to 94%",
+    #captions = "Note: States missing from the graph did not report their data",
         x = "",
        y = "") +
     theme_minimal() +
@@ -121,6 +127,16 @@ prla <- rla %>%
 
         
 prla
+
+
+ppmath + prla +
+  plot_annotation(
+    title = "High-chool proficient students in achievement tests"
+  ) &
+  plot_theme()
+  
+#ggpreview(width = 22, height = 15, units = "in")
+#ggsave(here::here("plot","achievement_test.png"), width = 22, height = 15, units = "in")
 ```
 
 ```{r}
@@ -130,11 +146,12 @@ mutate(bins = cut(Textbook, breaks = c(0,20,40,60,80,100, 120))) %>%
         ggplot(aes(geometry = geometry, fill = bins)) +
     	geom_sf(color = "white", size = 0.2)+
  scale_fill_manual(values = c("#F2E289", "#E8FACF","#BCDFB0","#8EC495", "#00777E","#005C88"),
-                             name = "($)") +
+                             name = " ",
+                       labels = c("<$20","$20-40", "$40-60", "$60-80", "$80-100", "$100-120", "NA")) +
   theme_minimal() +
   labs(fill = "Textbook Spending \nper Student",
        title = "State Textbook Spending Per Student",
-       subtitle = "Textbook Spending per student varied between $14 - $107 across the states")+
+       subtitle = "Textbook Spending per student varied between $14 - $107")+
      #  caption = "Source: U.S. Department of Education, National Center for Education Statistics, Common Core of Data (CCD)") +
     plot_theme()+
     theme(
@@ -147,13 +164,16 @@ mutate(bins = cut(Textbook, breaks = c(0,20,40,60,80,100, 120))) %>%
         axis.ticks = element_blank(),
         axis.text.y = element_blank(),
         legend.key.height = unit(0.1,"cm"),
-        legend.text = element_text(size = 9),
-        legend.title = element_text(size = 9),
+        legend.text = element_text(size = 20),
+        legend.title = element_text(size = 20),
         rect = element_blank(),
         panel.grid.major = element_blank())
 
 
 textbook_us
+
+#ggpreview(width = 12, height = 8, units = "in")
+ggsave(here("plot", "textbook_map.png"), width = 12, height = 8, units = "in")
 ```
 
 ```{r}
@@ -185,15 +205,16 @@ geom_point(data=filter(state_r2b,
                                  stnam == "Tennessee" |
                                  stnam== "Rhode Island"|
                                  stnam== "Minnesota"),
-                               aes(label =stnam)) +
+                               aes(label =stnam),
+                  size = 7) +
   theme_minimal()+
   xlim (14,108) +
-    labs(title= "The relationship between Textbook Spending & Math Achievement in High School",
-         subtitle = "States that spent more on textbook tend to have higher percentage of proficient student in Math",
+    labs(title= "Textbook Spending & Math Achievement in High School",
+         subtitle = "Textbook spending is moderately correlated with math achievement",
       x = "Textbook spending per student",
        y = "% of Students at & above Proficiency Level",
-      size = "Spending \nper Student",
-      caption = "3 Top/Bottom States with Percent of Student at and above Math Proficiency \nare labeled and colored blue/red, respectively")+
+      size = "Spending \nper Student")+
+     # caption = "3 Top/Bottom States with Percent of Student at and above Math Proficiency \nare labeled and colored blue/red, respectively")+
     geom_richtext(x=90,y=50, label="<i>r</i> = 0.33 \n<i>p</i> = 0.045", size = 2, color = "gray30")+
   theme(legend.position = "bottom",
         panel.grid.major = element_blank(),
@@ -201,7 +222,9 @@ geom_point(data=filter(state_r2b,
   plot_theme()
         # plot.title = element_text(face="bold"),
         # plot.subtitle = element_text(face="italic"),)
-ols
+
+#ggpreview(height = 10, width = 12, unit = "in")
+ggsave(here("plot","ols.png"), width = 12, height = 10, unit = "in")
 ```
 
 ## Diversity plots
