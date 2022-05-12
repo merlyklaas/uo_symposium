@@ -20,15 +20,15 @@ pacman::p_load("tidyverse","rio","here","janitor", "usmap", "ggthemes", "ggrepel
 
 plot_theme <- function() {
   theme(
-  text = element_text(family = 'sans', size = 22),
+  text = element_text(family = 'sans', size = 25),
   plot.title.position = "plot",
   plot.title = element_text(face="bold", size = 30),
-  plot.subtitle = element_text(size = 24),
-  plot.caption = element_text(size = 20,
+  plot.subtitle = element_text(size = 28),
+  plot.caption = element_text(size = 22,
                               color ="gray30",
                               hjust = 0),
-  axis.title = element_text(face="bold", size = 20),
-  axis.text = element_text(face="bold", size = 20),
+  axis.title = element_text(face="bold", size = 22),
+  axis.text = element_text(face="bold", size = 22),
  # axis.text.y = element_text(margin=margin(r=1))
   )
 }
@@ -58,7 +58,7 @@ math <- state %>%
   drop_na(allmath, st)
 
 math$math_z <- round(math$allmath - mean(math$allmath),2)
-math$math_type <-ifelse(math$math_z < 0, "elow", "above")
+math$math_type <-ifelse(math$math_z < 0, "below", "above")
 
 
 ```
@@ -212,7 +212,7 @@ sm <- get_data("NCES_CCD_nonfiscal_state_2017_2021_membership") %>%
 
 #Grade only K-12
 #Student count by race_ethnicity in K-12 
-
+sm %>% filter(st == "DA")
 
 sm <- subset(sm, grepl(("^G|^K"), grade))
 
