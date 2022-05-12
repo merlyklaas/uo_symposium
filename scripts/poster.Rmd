@@ -100,8 +100,7 @@ textbook_us <- left_join( us, state_r2b, by = c("name" = "stnam")) %>%
 mutate(bins = cut(Textbook, breaks = c(0,20,40,60,80,100, 120))) %>% 
         ggplot(aes(geometry = geometry, fill = bins)) +
     	geom_sf(color = "white", size = 0.2)+
- scale_fill_manual(values = c("#F2E289", "#E8FACF","#BCDFB0","#8EC495", "#00777E","#005C88"),
-                             name = "($)") +
+ scale_fill_manual(values = c("#F2E289", "#E8FACF","#BCDFB0","#8EC495", "#00777E","#005C88")) +
   theme_minimal() +
   labs(fill = "Textbook Spending \nper Student",
        title = "State Textbook Spending Per Student",
@@ -130,7 +129,7 @@ ols <- state_r2b%>%
   filter(!stnam == "District Of Columbia") %>%
   ggplot(aes(stperstudbook, allmath))+
   geom_point( color = "gray", size = 4, alpha = 0.4) +
-  geom_smooth(fill= "gray90",method = "lm", color = "gray")+
+  geom_smooth(fill= "gray90",method = "lm", se = F, color = "#8EC495")+
   geom_point(data=filter(state_r2b,
                          stnam == "Virginia" |
                            stnam== "Nebraska"|
@@ -144,10 +143,8 @@ geom_point(data=filter(state_r2b,
                          stnam== "Minnesota"),
            color = "#E3007D",
            alpha = 0.8,
-           size =6) +
-   scale_x_continuous(breaks = c(30,60,90),
-                       labels = c("$30", "$60", "$90"),
-                     expand = c(0,0)) + 
+           size =4) +
+   scale_x_continuous(expand = c(0,0)) + 
   geom_text_repel(data= subset(state_r2b,
                                stnam == "Virginia" |
                                  stnam== "Nebraska"|
@@ -155,16 +152,14 @@ geom_point(data=filter(state_r2b,
                                  stnam == "Tennessee" |
                                  stnam== "Rhode Island"|
                                  stnam== "Minnesota"),
-                               aes(label =stnam),
-                  size = ) +
+                               aes(label =stnam)) +
   theme_minimal()+
   xlim (14,108) +
     labs(title= "Textbook Spending & Math Achievement in High School (2017-18)",
          subtitle = "Higher textbook spending associated with higher student proficient in Math",
       x = "Textbook spending per student ($)",
        y = "% of Students at & above Proficiency Level",
-      size = "Spending \nper Student",
-      caption = "3 Top/Bottom States with Percent of Student at and above Math Proficiency \nare labeled and colored blue/red, respectively")+
+      size = "Spending \nper Student")+
     geom_richtext(x=90,y=50, label="<i>r</i> = 0.33 \n<i>p</i> = 0.045", size = 2, color = "gray30")+
   theme(legend.position = "bottom",
         panel.grid.major = element_blank(),
