@@ -20,15 +20,18 @@ pacman::p_load("tidyverse","rio","here","janitor", "usmap", "ggthemes", "ggrepel
 
 plot_theme <- function() {
   theme(
-  text = element_text(family = 'sans', size = 20),
+  text = element_text(family = 'sans', 
+                      size = 9,
+                      color = "#646464"),
   plot.title.position = "plot",
-  plot.title = element_text(face="bold", size = 25),
-  plot.subtitle = element_text(size = 20),
-  plot.caption = element_text(size = 16,
-                              color ="gray30",
-                              hjust = 0),
-  axis.title = element_text(face="bold", size = 18),
-  axis.text = element_text(face="bold", size = 18),
+  plot.title = element_text(face="bold", 
+                            size = 24,
+                            color = "#212121"),
+  plot.subtitle = element_text(size = 14,
+                               color = "#212121"),
+  plot.caption = element_text(hjust = 0),
+  axis.title = element_text(face="bold"),
+  axis.text = element_text(face="bold"),
  # axis.text.y = element_text(margin=margin(r=1))
   )
 }
@@ -228,8 +231,8 @@ geom_point(data=filter(state_r2b,
 ## Diversity plots
 
 ```{r}
-sm <- get_data("NCES_CCD_nonfiscal_state_2017_2021_membership") %>% 
-    clean_names()
+sm <- import(here("data","state_membership.rda")) %>% 
+  clean_names()
 
 #Grade only K-12
 #Student count by race_ethnicity in K-12 
@@ -239,7 +242,7 @@ sm <- subset(sm, grepl(("^G|^K"), grade))
 sm <- sm %>% 
     filter(grade != "Grade 13") %>%
     filter(!race_ethnicity %in% c("Not Specified", "No Category Codes")) %>% 
-    group_by(st, race_ethnicity, school_year, year) %>% 
+    group_by(st, race_ethnicity, year) %>% 
     summarise(
         student = sum(student_count, na.rm = TRUE) #students belonging to one race across grade
     )
@@ -598,13 +601,14 @@ st_binary <- stu_teacher %>%
 ```{r}
 dotplot <- ggplot(st_binary, aes(x = percent_total, y = forcats::fct_reorder(st, percent_total))) +
     geom_line(aes(group = st), 
-            linetype = "dotted", color = "gray40")+
-    geom_point(aes(color = profession), size = 2)+
+            linetype = "dotted", color = "gray60")+
+    geom_point(aes(color = profession),
+                  size = 2)+
     geom_text(aes(x=percent_total,
                   y=st,
                   label = round(percent_total,0),
                   color = profession),
-               nudge_x = 2, size = 5, family = "sans",
+               nudge_x = 2, size = 3, family = "sans",
               show.legend = FALSE)+
     scale_color_manual(limits = c("Teacher", "Student"),
                       values = c("#00347B","#E62790"), 
@@ -612,25 +616,29 @@ dotplot <- ggplot(st_binary, aes(x = percent_total, y = forcats::fct_reorder(st,
     scale_x_continuous(expand = c(0,0), limits = c(0,95))+
    theme_minimal()+
     labs(
-        x = "Percent",
+        x = "Percent identifying as People of Color",
         y  = "",
-        title = "Student Teacher Diveristy Gap (SY 2017-18)",
-        subtitle = "Of all public school teachers, only 21% identify as teachers of color",
-      #  caption = " \n \nNo teacher data for Maryland and Washington DC."
+        title = "Diveristy Gap in K-12 Public Schools",
+        subtitle = "In SY 2017-18, <span style = 'color: #E62790'>**52%**</span> of all students and <span style = 'color: #00347B'>**21%**</span> of all teachers identified as people of color.",
+        caption = "**Source:** U.S. Department of Education, National Center for Education Statistics, CCD and NTPS." 
         )+
     plot_theme()+
     theme(
+        plot.background = element_rect(fill = "white",
+                                        color = "white"),
         panel.grid.minor = element_blank(),
         panel.grid.major = element_blank(),
         axis.text.x = element_blank(),
-        axis.text.y = element_text(size = 16),
+        #axis.text.y = element_text(size = 9),
         axis.line.x = element_line(colour = "gray90"),
         legend.key = element_rect(fill = "white", colour = NA),
-        legend.text  = element_text(size = 18),
+        legend.text  = element_text(size = 11),
         legend.box.background = element_blank(),
         legend.position = "top",
         legend.justification = "right",
-        legend.direction = "horizontal")
+        legend.direction = "horizontal",
+        plot.subtitle = element_markdown(),
+        plot.caption = element_markdown())
 
 
     #     plot.title.position = "plot",
@@ -643,11 +651,11 @@ dotplot <- ggplot(st_binary, aes(x = percent_total, y = forcats::fct_reorder(st,
 
 dotplot
 
-#ggpreview(height = 11, width = 9, unit = "in")
+#ggpreview(height = 8, width = 10, unit = "in")
 ```
 
 ```{r}
 #ggpreview(height = 16, width = 13, unit = "in")
-#ggsave(here("plot","dotplot_v2.png"), height = 16, width = 12, unit = "in")
+#ggsave(here("plot","usafacts_dotplot.jpeg"), height = 8, width = 10, unit = "in")
 ```
 
